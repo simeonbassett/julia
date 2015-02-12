@@ -555,7 +555,7 @@ function send_add_client(rr::RemoteRef, i)
     end
 end
 
-function serialize(s, rr::RemoteRef)
+function serialize(s::Serializer, rr::RemoteRef)
     i = worker_id_from_socket(s)
     #println("$(myid()) serializing $rr to $i")
     if i != -1
@@ -566,7 +566,7 @@ function serialize(s, rr::RemoteRef)
 end
 
 function deserialize(s, t::Type{RemoteRef})
-    rr = invoke(deserialize, (Any, DataType), s, t)
+    rr = invoke(deserialize, (Any, DataType, Any), s, t, -1)
     where = rr.where
     if where == myid()
         add_client(rr2id(rr), myid())
