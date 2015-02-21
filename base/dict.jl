@@ -318,7 +318,7 @@ type Serializer
     io::IO
     counter::Int
     table::ObjectIdDict
-    Serializer(io::IO) = new(io, 0)
+    Serializer(io::IO) = new(io, 0, ObjectIdDict())
 end
 
 # dict
@@ -414,7 +414,7 @@ function serialize(s::Serializer, t::Dict)
     end
 end
 
-function deserialize{K,V}(s, T::Type{Dict{K,V}})
+function deserialize{K,V}(s::Serializer, T::Type{Dict{K,V}})
     n = read(s.io, Int32)
     t = T(); sizehint!(t, n)
     deserialize_cycle(s, t)
