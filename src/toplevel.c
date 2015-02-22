@@ -88,12 +88,15 @@ jl_value_t *jl_eval_module_expr(jl_expr_t *ex)
 {
     static arraylist_t module_stack;
     static int initialized=0;
+    jl_module_t *last_module;
+    jl_binding_t *b;
+    JL_GC_PUSH2(&last_module, &b);
     if (!initialized) {
         arraylist_new(&module_stack, 0);
         initialized = 1;
     }
     assert(ex->head == module_sym);
-    jl_module_t *last_module = jl_current_module;
+    last_module = jl_current_module;
     if (jl_array_len(ex->args) != 3 || !jl_is_expr(jl_exprarg(ex,2))) {
         jl_error("syntax: malformed module expression");
     }
@@ -103,7 +106,7 @@ jl_value_t *jl_eval_module_expr(jl_expr_t *ex)
         jl_type_error("module", (jl_value_t*)jl_sym_type, (jl_value_t*)name);
     }
     jl_module_t *parent_module = jl_current_module;
-    jl_binding_t *b = jl_get_binding_wr(parent_module, name);
+    b = jl_get_binding_wr(parent_module, name);
     jl_declare_constant(b);
     if (b->value != NULL) {
         jl_printf(JL_STDERR, "Warning: replacing module %s\n", name->name);
@@ -139,7 +142,6 @@ jl_value_t *jl_eval_module_expr(jl_expr_t *ex)
         }
     }
 
-    JL_GC_PUSH1(&last_module);
     jl_module_t *task_last_m = jl_current_task->current_module;
     jl_current_task->current_module = jl_current_module = newm;
 
