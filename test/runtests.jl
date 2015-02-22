@@ -20,9 +20,6 @@ if isdir(joinpath(JULIA_HOME, Base.DOCDIR, "examples"))
 end
 @unix_only push!(testnames, "unicode")
 
-# parallel tests depend on other workers - do them last
-push!(testnames, "parallel")
-
 tests = (ARGS==["all"] || isempty(ARGS)) ? testnames : ARGS
 
 if "sparse" in tests
